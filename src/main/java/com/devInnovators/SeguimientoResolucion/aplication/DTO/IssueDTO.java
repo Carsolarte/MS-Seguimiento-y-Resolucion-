@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
 
-import com.devInnovators.SeguimientoResolucion.domain.model.AdminUser;
-import com.devInnovators.SeguimientoResolucion.domain.model.CategoryIssue;
+
 import com.devInnovators.SeguimientoResolucion.domain.model.Priority;
 import com.devInnovators.SeguimientoResolucion.domain.model.ResolutionTeam;
 import com.devInnovators.SeguimientoResolucion.domain.model.StatusIssue;
@@ -16,11 +15,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class IssueDTO {
+    
     private String id;
+    private String categoryIssue;
     private StatusIssue statusIssue;
-    private CategoryIssue category;
     private Priority priority;
-    private List<String> reports; 
-    private AdminUser idAdminUser;
+    private List<ReportDTO> reportList;  // Lista de IDs de los reportes asociados
+    private String adminc;
     private ResolutionTeam resolutionTeam;
 }

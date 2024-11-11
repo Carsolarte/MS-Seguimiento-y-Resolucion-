@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AdminUserDTO {
+public class AdminCDTO {
     private String id;
     private String name;
     private List<ReportDTO> reports;
