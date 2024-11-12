@@ -30,7 +30,7 @@ public class IssueService implements IssueServiceInterface {
     @Autowired
     private IssueRepository issueRepository;
     private AdminCRepository adminCRepository;
-    
+
     public IssueService(AdminCRepository adminCRepository) {
         this.adminCRepository = adminCRepository;
     }
@@ -43,6 +43,7 @@ public class IssueService implements IssueServiceInterface {
                 .orElseThrow(() -> new RuntimeException("Issue not found with ID: " + issueId));
         issue.setResolutionTeam(resolutionTeam); // Asigna el equipo de resolución
         issueRepository.save(issue); // Guarda los cambios
+        
     }
 
     @Override
