@@ -6,8 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-
-
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 import com.devInnovators.SeguimientoResolucion.aplication.DTO.IssueDTO;
+import com.devInnovators.SeguimientoResolucion.aplication.EventDTO.CreateIssueEvent;
 import com.devInnovators.SeguimientoResolucion.domain.model.StatusIssue;
 import com.devInnovators.SeguimientoResolucion.aplication.Services.IssueService;
 import com.devInnovators.SeguimientoResolucion.domain.model.ResolutionTeam;
@@ -26,8 +26,10 @@ import java.util.List;
 @RequestMapping("/api/issues")
 public class IssueController {
 
+
     @Autowired
     private IssueService issueService;
+    
 
     @PatchMapping("/{issueId}/assign")
     public ResponseEntity<Void> assignResolutionTeam(@PathVariable String issueId, @RequestBody ResolutionTeam resolutionTeam) {
@@ -47,7 +49,13 @@ public class IssueController {
         return ResponseEntity.ok(issues);
     }
 
-     @GetMapping
+    //Crear Issue y disparar evento de creacion
+    @PostMapping
+    public ResponseEntity<IssueDTO> createIssue(@RequestBody CreateIssueEvent createIssueEvent) {
+        IssueDTO issue = issueService.createIssue(createIssueEvent);
+        return ResponseEntity.status(HttpStatus.CREATED).body(issue);
+    }
+    @GetMapping
     public ResponseEntity<List<IssueDTO>> getAllIssues() {
         
         try {

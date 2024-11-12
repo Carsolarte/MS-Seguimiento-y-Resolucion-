@@ -9,8 +9,11 @@ import org.springframework.stereotype.Service;
 import com.devInnovators.SeguimientoResolucion.aplication.DTO.CommentDTO;
 import com.devInnovators.SeguimientoResolucion.aplication.DTO.IssueDTO;
 import com.devInnovators.SeguimientoResolucion.aplication.DTO.ReportDTO;
+import com.devInnovators.SeguimientoResolucion.aplication.EventDTO.CreateIssueEvent;
 import com.devInnovators.SeguimientoResolucion.aplication.Interfaces.IssueServiceInterface;
+import com.devInnovators.SeguimientoResolucion.domain.Repository.AdminCRepository;
 import com.devInnovators.SeguimientoResolucion.domain.Repository.IssueRepository;
+import com.devInnovators.SeguimientoResolucion.domain.model.AdminC;
 import com.devInnovators.SeguimientoResolucion.domain.model.Comment;
 import com.devInnovators.SeguimientoResolucion.domain.model.Issue;
 import com.devInnovators.SeguimientoResolucion.domain.model.Report;
@@ -26,6 +29,12 @@ public class IssueService implements IssueServiceInterface {
 
     @Autowired
     private IssueRepository issueRepository;
+    private AdminCRepository adminCRepository;
+    
+    public IssueService(AdminCRepository adminCRepository) {
+        this.adminCRepository = adminCRepository;
+    }
+
 
 
     @Override
@@ -64,6 +73,30 @@ public class IssueService implements IssueServiceInterface {
                      .map(this::convertIssueToDTO)
                      .collect(Collectors.toList());
     }
+
+    @Override
+    public IssueDTO createIssue(CreateIssueEvent event) {
+        Issue issue = new Issue();
+        issue.setId(event.getId());
+        issue.setCategoryIssue(event.getCategory());
+        issue.setPriority(event.getPriority());
+        issue.setStatusIssue(event.getStatusIssue());
+        List<Report> reports = event.getReportIds().stream()
+                .map(reportId -> {
+                    Report report = new Report();
+                    report.setIdReport(reportId);
+                    return report;
+                })
+                .collect(Collectors.toList());
+        issue.setReportList(reports);
+        issue.setAdminc(adminCRepository.findById(event.getAdmincId())
+                .orElseThrow(() -> new RuntimeException("AdminC not found with ID: " + event.getAdmincId())));
+        issueRepository.save(issue);
+        return convertIssueToDTO(issue);
+        
+
+    }
+
     private IssueDTO convertIssueToDTO(Issue issue) {
         IssueDTO dto = new IssueDTO();
         dto.setId(issue.getId());

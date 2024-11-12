@@ -45,6 +45,11 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-validation</artifactId>
    		</dependency>
+		 <!-- RabbitMQ starter para Spring Boot -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
 
 		<!-- Spring Boot Starter -->
 		<dependency>
