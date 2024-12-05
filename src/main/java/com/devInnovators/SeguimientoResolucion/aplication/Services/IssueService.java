@@ -6,19 +6,23 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 import com.devInnovators.SeguimientoResolucion.aplication.DTO.CommentDTO;
 import com.devInnovators.SeguimientoResolucion.aplication.DTO.IssueDTO;
 import com.devInnovators.SeguimientoResolucion.aplication.DTO.ReportDTO;
+import com.devInnovators.SeguimientoResolucion.aplication.EventDTO.AssignedIssueEvent;
+import com.devInnovators.SeguimientoResolucion.aplication.EventDTO.AssignedStatusEvent;
 import com.devInnovators.SeguimientoResolucion.aplication.EventDTO.CreateIssueEvent;
 import com.devInnovators.SeguimientoResolucion.aplication.Interfaces.IssueServiceInterface;
 import com.devInnovators.SeguimientoResolucion.domain.Repository.AdminCRepository;
 import com.devInnovators.SeguimientoResolucion.domain.Repository.IssueRepository;
-import com.devInnovators.SeguimientoResolucion.domain.model.AdminC;
+
 import com.devInnovators.SeguimientoResolucion.domain.model.Comment;
 import com.devInnovators.SeguimientoResolucion.domain.model.Issue;
 import com.devInnovators.SeguimientoResolucion.domain.model.Report;
 import com.devInnovators.SeguimientoResolucion.domain.model.ResolutionTeam;
 import com.devInnovators.SeguimientoResolucion.domain.model.StatusIssue;
+import com.devInnovators.SeguimientoResolucion.infra.Publisher.EventPublisher;
 
 import java.util.List;
 
@@ -30,9 +34,12 @@ public class IssueService implements IssueServiceInterface {
     @Autowired
     private IssueRepository issueRepository;
     private AdminCRepository adminCRepository;
+    private EventPublisher eventPublisher;
 
-    public IssueService(AdminCRepository adminCRepository) {
+    public IssueService(AdminCRepository adminCRepository, IssueRepository issueRepository, EventPublisher eventPublisher) {
         this.adminCRepository = adminCRepository;
+        this.issueRepository = issueRepository;
+        this.eventPublisher = eventPublisher;
     }
 
 
@@ -43,6 +50,19 @@ public class IssueService implements IssueServiceInterface {
                 .orElseThrow(() -> new RuntimeException("Issue not found with ID: " + issueId));
         issue.setResolutionTeam(resolutionTeam); // Asigna el equipo de resolución
         issueRepository.save(issue); // Guarda los cambios
+        System.out.printf("Publicando evento de asignacion de resolution team...");
+        // Crear y publicar el evento AssignedIssueEvent
+        AssignedIssueEvent assignedIssueEvent = new AssignedIssueEvent();
+        assignedIssueEvent.setIssueId(issue.getId());
+        assignedIssueEvent.setCategory(issue.getCategoryIssue()); // Asumiendo que Issue tiene CategoryIssue
+        assignedIssueEvent.setStatus(issue.getStatusIssue()); // Estado actual del Issue
+        assignedIssueEvent.setPriority(issue.getPriority()); // Prioridad actual del Issue
+        assignedIssueEvent.setResolutionTeam(resolutionTeam); // Equipo de resolución asignado
+        assignedIssueEvent.setIdAdminc(issue.getAdminc().getId()); // ID del AdminC asignado
+        
+        eventPublisher.publishIssueAssigned(assignedIssueEvent); // Publica el evento
+        System.out.printf(" FIN Evento de asignacion de resolution team publicado");
+        
         
     }
 
@@ -52,7 +72,18 @@ public class IssueService implements IssueServiceInterface {
                 .orElseThrow(() -> new RuntimeException("Issue not found with ID: " + issueId));
         issue.updateStatus(newStatus); // Actualiza el estado del issue
         issueRepository.save(issue); // Guarda los cambios
-    }
+
+        System.out.printf("Publicando evento de asignacion de status...");
+    // Crear y publicar el evento AssignedStatusEvent
+        AssignedStatusEvent assignedStatusEvent = new AssignedStatusEvent();
+        assignedStatusEvent.setId(issue.getId());
+        assignedStatusEvent.setStatusIssue(newStatus); // Nuevo estado asignado
+        assignedStatusEvent.setAdminc(issue.getAdminc().getId()); // ID del AdminC asignado
+        
+        eventPublisher.publishStatusAssigned(assignedStatusEvent); // Publica el evento
+
+        System.out.printf(" FIN Evento de asignacion de status publicado");
+        }
 
     @Override
     public List<IssueDTO> getIssuesByStatus(StatusIssue status) {

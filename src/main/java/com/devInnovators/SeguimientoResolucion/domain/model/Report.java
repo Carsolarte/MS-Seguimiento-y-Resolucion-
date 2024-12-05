@@ -81,8 +81,5 @@ public class Report {
         updateDate = LocalDateTime.now();   // Actualización automática al modificar
     }
 
-    /*public Object getProblem() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getProblem'");
-    }*/
+    
 }

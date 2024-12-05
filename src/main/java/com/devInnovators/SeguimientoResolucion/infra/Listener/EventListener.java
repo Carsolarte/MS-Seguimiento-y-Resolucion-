@@ -25,7 +25,7 @@ public class EventListener {
     @RabbitListener(queues = "problemaCreadoQueue")
     public void listenIssue(CreateIssueEvent issueDTO) {
         try {
-            System.out.println("Recibido evento ReporteCreado: " + issueDTO);
+            System.out.println("Recibido evento issueCreado: " + issueDTO);
             issueService.createIssue(issueDTO);
         } catch (Exception e) {
             // Manejo de errores, como loggear o capturar el evento para investigar
